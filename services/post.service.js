@@ -27,5 +27,17 @@ export const updatePost = async (postId, userId, data) => {
 };
 
 export const deletePost = async (postId, userId) => {
-    return prisma.post.delete({ where: { id: postId, authorId: userId } })
+    const post = await prisma.post.findUnique({ 
+        where: { id: postId }
+    });
+
+    if (!post) {
+        throw new Error('Post not found')
+    }
+
+    if (post.authorId === userId) {
+        throw new Error ('Not authorized to delete this post')
+    };
+
+    await prisma.post.delete({ where: { id: postId } });
 };
